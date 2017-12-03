@@ -1,48 +1,34 @@
-// this is what you would do if you liked things to be easy:
-// var stringifyJSON = JSON.stringify;
-
-// but you don't so you're going to write it from scratch:
-
-var stringifyJSON = function(obj) {
-  // your code goes here
-  var result = '';
-  // if obj is null, stringify null
-  if (obj === null) {
-    return 'null';
+var stringifyJSON = function(value) {
+  // Primitives and exceptions
+  if (value === null || typeof value === 'number' || typeof value === 'boolean') {
+    return value + '';
   }
 
-  if (typeof obj === 'number' || typeof obj === 'boolean') {
-    return obj.toString();
+  if (typeof value === 'string') {
+    return '"' + value + '"';
   }
-  if (typeof obj === 'string') {
-    return '"' + obj + '"';
+
+  if (typeof value === 'function' || value === undefined) {
+    return '';
   }
-  
-  // if obj is an Array, stringify each element
-  if (Array.isArray(obj)) {
+
+  // Array, stringify each element
+  if (Array.isArray(value)) {
     var result = [];
-    if (obj.length > 0) {
-      for (var i = 0; i < obj.length; i++) {
-        result.push(stringifyJSON(obj[i]));
-      }
-      return '[' + result.join(',') + ']';
-    } else {
-      return '[]';
-    }
-    
+    value.forEach(function (element) {
+      result.push(stringifyJSON(element));
+    });
+    return '[' + result.join(',') + ']';
   }
-  // if obj is an Object, stringify each key and value pair
 
-  if (typeof obj === 'object') {
+  //Object, stringify each key and value pair
+  if (typeof value === 'object') {
     var result = [];
-    
-    for (var key in obj) {
-      if (typeof obj[key] === 'function' || obj[key] === undefined) {
-        continue;
+    for (var key in value) {
+      if (key !== 'functions' && key !== 'undefined') {
+        result.push('"' + key + '":' + stringifyJSON(value[key]));
       }
-      result.push(stringifyJSON(key) + ':' + stringifyJSON(obj[key]));
     }
-      
     return '{' + result.join(',') + '}';
-  }  
+  }
 };
